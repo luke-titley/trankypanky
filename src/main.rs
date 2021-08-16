@@ -7,10 +7,20 @@ use std::path::PathBuf;
 use failure::{Error, Fail};
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "lowercase")]
+enum Type {
+    Chargeback,
+    Deposit,
+    Dispute,
+    Resolve,
+    Withdrawl,
+}
+
+#[derive(Debug, Deserialize)]
 struct Transaction {
     #[serde(rename = "type")]
-    type_: String,
-    client: u64,
+    type_: Type,
+    client: u16,
     tx: u64,
     amount: Option<f32>,
 }
@@ -56,15 +66,18 @@ fn parse_arguments() -> Result<PathBuf, TpError> {
     Ok(filepath)
 }
 
-fn process_file(filepath: &std::path::Path) -> Result<(), TpError> {
+fn process_file<H>(filepath: &std::path::Path, mut handler: H) -> Result<(), TpError>
+where
+    H: FnMut(&Transaction) -> Result<(), TpError>,
+{
     // Build the CSV reader and iterate over each record.
     let mut rdr = csv::ReaderBuilder::new()
         .trim(csv::Trim::All)
         .from_path(filepath)?;
 
     for result in rdr.deserialize() {
-        let transaaction: Transaction = result?;
-        println!("{:?}", record);
+        let transaction: Transaction = result?;
+        handler(&transaction)?;
     }
 
     Ok(())
@@ -73,7 +86,11 @@ fn process_file(filepath: &std::path::Path) -> Result<(), TpError> {
 fn main() -> Result<(), Error> {
     let filepath = parse_arguments()?;
 
-    process_file(&filepath)?;
+    process_file(&filepath, |transaction| {
+        println!("{:?}", transaction);
+
+        Ok(())
+    })?;
 
     Ok(())
 }
