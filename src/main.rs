@@ -1,8 +1,8 @@
-//use std::error::Error;
 use std::io;
 use std::process;
 
 use serde::Deserialize;
+use std::path::PathBuf;
 
 use failure::{Error, Fail};
 
@@ -18,16 +18,23 @@ struct Transaction {
 enum TpError {
     #[fail(display = "invalid arguments, this take a single csv file as its argument")]
     InvalidArguments,
+    #[fail(display = "given file does not exist {:?}", filepath)]
+    NonExistantFile {
+        filepath: std::path::PathBuf,
+    },
 }
 
-fn parse_arguments() -> Result<String, TpError>
+fn parse_arguments() -> Result<PathBuf, TpError>
 {
     let args : Vec<String> = std::env::args().collect();
     if args.len() < 2 {
         return Err(TpError::InvalidArguments{});
     }
 
-    let filepath = args[1].clone();
+    let filepath = std::path::PathBuf::from(args[1].clone());
+    if !filepath.exists() {
+        return Err(TpError::NonExistantFile{filepath});
+    }
 
     Ok(filepath)
 }
