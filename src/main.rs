@@ -70,7 +70,6 @@ fn process_file<H>(filepath: &std::path::Path, mut handler: H) -> Result<(), TpE
 where
     H: FnMut(&Transaction) -> Result<(), TpError>,
 {
-    // Build the CSV reader and iterate over each record.
     let mut rdr = csv::ReaderBuilder::new()
         .trim(csv::Trim::All)
         .from_path(filepath)?;
