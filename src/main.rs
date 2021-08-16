@@ -1,10 +1,11 @@
 use std::io;
 use std::process;
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
 use failure::{Error, Fail};
+use std::collections::HashMap;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -16,14 +17,29 @@ enum Type {
     Withdrawl,
 }
 
+type ClientId = u16;
+
 #[derive(Debug, Deserialize)]
 struct Transaction {
     #[serde(rename = "type")]
     type_: Type,
-    client: u16,
+    client: ClientId,
     tx: u64,
     amount: Option<f32>,
 }
+
+#[derive(Debug, Serialize)]
+struct Client {
+    client: u16,
+    available: f32,
+    held: f32,
+    total: f32,
+    locked: bool,
+    #[serde(skip)]
+    disputed: Vec<u64>,
+}
+
+type Clients = HashMap<u16, Client>;
 
 #[derive(Debug, Fail)]
 enum TpError {
@@ -79,6 +95,10 @@ where
         handler(&transaction)?;
     }
 
+    Ok(())
+}
+
+fn process_transaction(clients: &mut Clients, transaction : &Transaction) ->Result<(), TpError> {
     Ok(())
 }
 
