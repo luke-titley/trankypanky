@@ -1,8 +1,10 @@
-use std::error::Error;
+//use std::error::Error;
 use std::io;
 use std::process;
 
 use serde::Deserialize;
+
+use failure::{Error, Fail};
 
 #[derive(Debug, Deserialize)]
 struct Transaction {
@@ -12,11 +14,27 @@ struct Transaction {
     amount: f32,
 }
 
-fn main() {
+#[derive(Debug, Fail)]
+enum TpError {
+    #[fail(display = "invalid arguments, this take a single csv file as its argument")]
+    InvalidArguments,
+}
 
-    for argument in std::env::args() {
-        println!("{}", argument);
+fn parse_arguments() -> Result<String, TpError>
+{
+    let args : Vec<String> = std::env::args().collect();
+    if args.len() < 2 {
+        return Err(TpError::InvalidArguments{});
     }
 
-    println!("Hello, world!");
+    let filepath = args[1].clone();
+
+    Ok(filepath)
 }
+
+fn main() -> Result<(), Error> {
+    let filepath = parse_arguments()?;
+
+    Ok(())
+}
+
