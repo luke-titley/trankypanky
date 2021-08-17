@@ -38,13 +38,15 @@ where
 
     for result in rdr.deserialize() {
         // Deserialize the transaction
-        let transaction: IOTransaction = result?;
-        handler(
-            transaction.client,
-            <model::Transaction as std::convert::From<
-                super::reader::IOTransaction,
-            >>::from(transaction),
-        )?;
+        let io_transaction: IOTransaction = result?;
+        let client = io_transaction.client;
+
+        let transaction = <model::Transaction as std::convert::TryFrom<
+            super::reader::IOTransaction,
+        >>::try_from(io_transaction)?;
+
+        // Run the handler
+        handler(client, transaction)?;
     }
 
     Ok(())

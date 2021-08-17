@@ -19,16 +19,44 @@ pub enum Transaction {
 }
 
 //------------------------------------------------------------------------------
-impl std::convert::From<super::reader::IOTransaction> for Transaction {
-    fn from(from: super::reader::IOTransaction) -> Self {
+impl std::convert::TryFrom<super::reader::IOTransaction> for Transaction {
+    type Error = super::result::Error;
+
+    fn try_from(
+        from: super::reader::IOTransaction,
+    ) -> super::result::Result<Self> {
         match from {
+            super::reader::IOTransaction {
+                type_: super::reader::IOTransactionType::Chargeback,
+                client,
+                tx: transaction,
+                ..
+            } => Ok(Self::Chargeback { transaction }),
             super::reader::IOTransaction {
                 type_: super::reader::IOTransactionType::Deposit,
                 client,
                 tx: transaction,
                 amount: Some(amount),
-            } => Self::Deposit { amount },
-            _ => panic!("Only here while we fill this out"),
+            } => Ok(Self::Deposit { amount }),
+            super::reader::IOTransaction {
+                type_: super::reader::IOTransactionType::Dispute,
+                client,
+                tx: transaction,
+                ..
+            } => Ok(Self::Dispute { transaction }),
+            super::reader::IOTransaction {
+                type_: super::reader::IOTransactionType::Resolve,
+                client,
+                tx: transaction,
+                ..
+            } => Ok(Self::Resolve { transaction }),
+            super::reader::IOTransaction {
+                type_: super::reader::IOTransactionType::Withdrawl,
+                client,
+                tx: transaction,
+                amount: Some(amount),
+            } => Ok(Self::Withdrawl { amount }),
+            _ => Err(super::result::Error::CannotConvertFromIOTransaction),
         }
     }
 }
