@@ -41,11 +41,12 @@ where
         let io_transaction: IOTransaction = result?;
         let client = io_transaction.client;
 
+        // Validate the transaction
         let transaction = <model::Transaction as std::convert::TryFrom<
             super::reader::IOTransaction,
         >>::try_from(io_transaction)?;
 
-        // Run the handler
+        // Run the transaction handler
         handler(client, transaction)?;
     }
 
