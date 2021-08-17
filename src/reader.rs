@@ -1,6 +1,7 @@
 //------------------------------------------------------------------------------
 // Copywrite Luke Titley 2021
 //------------------------------------------------------------------------------
+use super::model;
 use super::result::Result;
 //------------------------------------------------------------------------------
 use serde::Deserialize;
@@ -20,24 +21,30 @@ pub enum IOTransactionType {
 #[derive(Debug, Deserialize)]
 pub struct IOTransaction {
     #[serde(rename = "type")]
-    type_: IOTransactionType,
-    client: u16,
-    tx: u64,
-    amount: Option<f32>,
+    pub type_: IOTransactionType,
+    pub client: u16,
+    pub tx: u64,
+    pub amount: Option<f32>,
 }
 
 //------------------------------------------------------------------------------
 pub fn process_file<H>(filepath: &std::path::Path, mut handler: H) -> Result<()>
 where
-    H: FnMut(&IOTransaction) -> Result<()>,
+    H: FnMut(model::ClientId, model::Transaction) -> Result<()>,
 {
     let mut rdr = csv::ReaderBuilder::new()
         .trim(csv::Trim::All)
         .from_path(filepath)?;
 
     for result in rdr.deserialize() {
+        // Deserialize the transaction
         let transaction: IOTransaction = result?;
-        handler(&transaction)?;
+        handler(
+            transaction.client,
+            <model::Transaction as std::convert::From<
+                super::reader::IOTransaction,
+            >>::from(transaction),
+        )?;
     }
 
     Ok(())

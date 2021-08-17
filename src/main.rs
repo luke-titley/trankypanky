@@ -34,7 +34,7 @@ fn process_transaction(
 fn main() -> std::result::Result<(), failure::Error> {
     let filepath = parse_arguments()?;
 
-    reader::process_file(&filepath, |transaction| {
+    reader::process_file(&filepath, |client, transaction| {
         println!("{:?}", transaction);
 
         Ok(())
