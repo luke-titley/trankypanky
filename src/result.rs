@@ -22,6 +22,9 @@ pub enum Error {
 
     #[fail(display = "csv error")]
     CSVError(csv::Error),
+
+    #[fail(display = "IOTransaction is malformed")]
+    CannotConvertFromIOTransaction,
 }
 
 //------------------------------------------------------------------------------
