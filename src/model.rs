@@ -64,6 +64,7 @@ impl std::convert::TryFrom<super::reader::IOTransaction> for Transaction {
 //------------------------------------------------------------------------------
 #[derive(Debug, Serialize)]
 pub struct Client {
+    client: u16,
     amount: Amount,
     held: Amount,
     total: Amount,
@@ -71,6 +72,20 @@ pub struct Client {
 
     #[serde(skip)]
     transactions: HashMap<u64, Transaction>,
+}
+
+//------------------------------------------------------------------------------
+impl Client {
+    pub fn new(id: u16) -> Self {
+        Self {
+            client: id,
+            amount: 0_f32,
+            held: 0_f32,
+            total: 0_f32,
+            locked: false,
+            transactions: HashMap::new(),
+        }
+    }
 }
 
 pub type Clients = HashMap<u16, Client>;
