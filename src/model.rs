@@ -11,11 +11,23 @@ pub type Amount = f32;
 
 #[derive(Debug)]
 pub enum Transaction {
-    Chargeback { transaction: TransactionId },
-    Deposit { amount: Amount },
-    Dispute { transaction: TransactionId },
-    Resolve { transaction: TransactionId },
-    Withdrawl { amount: Amount },
+    Chargeback {
+        transaction: TransactionId,
+    },
+    Deposit {
+        transaction: TransactionId,
+        amount: Amount,
+    },
+    Dispute {
+        transaction: TransactionId,
+    },
+    Resolve {
+        transaction: TransactionId,
+    },
+    Withdrawl {
+        transaction: TransactionId,
+        amount: Amount,
+    },
 }
 
 //------------------------------------------------------------------------------
@@ -37,7 +49,10 @@ impl std::convert::TryFrom<super::reader::IOTransaction> for Transaction {
                 client,
                 tx: transaction,
                 amount: Some(amount),
-            } => Ok(Self::Deposit { amount }),
+            } => Ok(Self::Deposit {
+                transaction,
+                amount,
+            }),
             super::reader::IOTransaction {
                 type_: super::reader::IOTransactionType::Dispute,
                 client,
@@ -55,7 +70,10 @@ impl std::convert::TryFrom<super::reader::IOTransaction> for Transaction {
                 client,
                 tx: transaction,
                 amount: Some(amount),
-            } => Ok(Self::Withdrawl { amount }),
+            } => Ok(Self::Withdrawl {
+                transaction,
+                amount,
+            }),
             _ => Err(super::result::Error::CannotConvertFromIOTransaction),
         }
     }
@@ -71,7 +89,7 @@ pub struct Client {
     locked: bool,
 
     #[serde(skip)]
-    transactions: HashMap<u64, Transaction>,
+    withdrawls: HashMap<u64, Amount>,
 }
 
 //------------------------------------------------------------------------------
@@ -83,8 +101,13 @@ impl Client {
             held: 0_f32,
             total: 0_f32,
             locked: false,
-            transactions: HashMap::new(),
+            withdrawls: HashMap::new(),
         }
+    }
+
+    pub fn deposit(&mut self, amount: f32) {
+        self.amount += amount;
+        self.total += amount;
     }
 }
 

@@ -28,14 +28,14 @@ fn process_transaction(
     client_id: model::ClientId,
     transaction: model::Transaction,
 ) -> Result<()> {
-    println!("{:?}", transaction);
-
     let client = clients
         .entry(client_id)
         .or_insert(model::Client::new(client_id));
 
-    match transaction {
-        model::Transaction::Deposit { amount } => {}
+    match &transaction {
+        model::Transaction::Deposit { amount, .. } => {
+            client.deposit(*amount);
+        }
         _ => (),
     }
 
