@@ -9,7 +9,7 @@ use std::collections::HashMap;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "lowercase")]
-enum Type {
+enum TransactionType {
     Chargeback,
     Deposit,
     Dispute,
@@ -18,25 +18,36 @@ enum Type {
 }
 
 type ClientId = u16;
+type TransactionId = u64;
+type Amount = f32;
 
 #[derive(Debug, Deserialize)]
 struct Transaction {
     #[serde(rename = "type")]
-    type_: Type,
+    type_: TransactionType,
     client: ClientId,
-    tx: u64,
-    amount: Option<f32>,
+    tx: TransactionId,
+    amount: Option<Amount>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug)]
+enum ClientTransaction {
+    Chargeback { transaction: TransactionId },
+    Deposit { amount: Amount },
+    Dispute { transaction: TransactionId },
+    Resolve { transaction: TransactionId },
+    Withdrawl { amount: Amount },
+}
+
+#[derive(Debug, Deserialize)]
 struct Client {
-    client: u16,
-    available: f32,
-    held: f32,
-    total: f32,
+    amount: Amount,
+    held: Amount,
+    total: Amount,
     locked: bool,
+
     #[serde(skip)]
-    disputed: Vec<u64>,
+    transactions: HashMap<u64, ClientTransaction>,
 }
 
 type Clients = HashMap<u16, Client>;
@@ -98,7 +109,7 @@ where
     Ok(())
 }
 
-fn process_transaction(clients: &mut Clients, transaction : &Transaction) ->Result<(), TpError> {
+fn process_transaction(clients: &mut Clients, transaction: &Transaction) -> Result<(), TpError> {
     Ok(())
 }
 
