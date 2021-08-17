@@ -25,20 +25,48 @@ fn parse_arguments() -> Result<std::path::PathBuf> {
 //------------------------------------------------------------------------------
 fn process_transaction(
     clients: &mut model::Clients,
-    transaction: &model::Transaction,
+    client_id: model::ClientId,
+    transaction: model::Transaction,
 ) -> Result<()> {
+    println!("{:?}", transaction);
+
+    let client = clients
+        .entry(client_id)
+        .or_insert(model::Client::new(client_id));
+
+    match transaction {
+        model::Transaction::Deposit { amount } => {}
+        _ => (),
+    }
+
+    Ok(())
+}
+
+//------------------------------------------------------------------------------
+fn write(clients: &model::Clients) -> Result<()> {
+    let mut wtr = csv::Writer::from_writer(std::io::stdout());
+
+    for (_, client) in clients {
+        wtr.serialize(client)?;
+    }
+    wtr.flush()?;
+
     Ok(())
 }
 
 //------------------------------------------------------------------------------
 fn main() -> std::result::Result<(), failure::Error> {
+    // Clients
+    let mut clients = model::Clients::new();
+
+    // Process th transactions
     let filepath = parse_arguments()?;
-
     reader::process_file(&filepath, |client, transaction| {
-        println!("{:?}", transaction);
-
-        Ok(())
+        process_transaction(&mut clients, client, transaction)
     })?;
+
+    // Dump the results
+    write(&clients);
 
     Ok(())
 }
