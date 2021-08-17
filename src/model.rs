@@ -1,6 +1,8 @@
 //------------------------------------------------------------------------------
 // Copywrite Luke Titley 2021
 //------------------------------------------------------------------------------
+use super::result::Result;
+
 use serde::{Deserialize, Serialize};
 
 use std::collections::HashMap;
@@ -34,9 +36,7 @@ pub enum Transaction {
 impl std::convert::TryFrom<super::reader::IOTransaction> for Transaction {
     type Error = super::result::Error;
 
-    fn try_from(
-        from: super::reader::IOTransaction,
-    ) -> super::result::Result<Self> {
+    fn try_from(from: super::reader::IOTransaction) -> Result<Self> {
         match from {
             super::reader::IOTransaction {
                 type_: super::reader::IOTransactionType::Chargeback,
@@ -105,9 +105,27 @@ impl Client {
         }
     }
 
-    pub fn deposit(&mut self, amount: f32) {
+    pub fn deposit(&mut self, amount: f32) -> Result<()> {
         self.amount += amount;
         self.total += amount;
+
+        Ok(())
+    }
+
+    pub fn withdraw(&mut self, transaction: u64, amount: f32) -> Result<()> {
+        if amount > self.amount {
+            return Err(super::result::Error::InsuffientFunds {
+                requested: amount,
+                current_balance: self.amount,
+            });
+        }
+
+        self.amount -= amount;
+        self.total -= amount;
+
+        self.withdrawls.insert(transaction, amount);
+
+        Ok(())
     }
 }
 

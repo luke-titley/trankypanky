@@ -25,6 +25,15 @@ pub enum Error {
 
     #[fail(display = "IOTransaction is malformed")]
     CannotConvertFromIOTransaction,
+
+    #[fail(
+        display = "Insufficient funds in account. requested {}, current balance {}",
+        requested, current_balance
+    )]
+    InsuffientFunds {
+        requested: f32,
+        current_balance: f32,
+    },
 }
 
 //------------------------------------------------------------------------------

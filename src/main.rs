@@ -34,7 +34,13 @@ fn process_transaction(
 
     match &transaction {
         model::Transaction::Deposit { amount, .. } => {
-            client.deposit(*amount);
+            client.deposit(*amount)?;
+        }
+        model::Transaction::Withdrawl {
+            amount,
+            transaction,
+        } => {
+            client.withdraw(*transaction, *amount)?;
         }
         _ => (),
     }
