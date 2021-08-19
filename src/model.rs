@@ -114,7 +114,7 @@ impl Client {
 
     pub fn withdraw(&mut self, transaction: u64, amount: f32) -> Result<()> {
         if amount > self.amount {
-            return Err(super::result::Error::InsuffientFunds {
+            return Err(super::result::Error::InsufficientFunds {
                 requested: amount,
                 current_balance: self.amount,
             });

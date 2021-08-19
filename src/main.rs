@@ -33,14 +33,27 @@ fn process_transaction(
         .or_insert(model::Client::new(client_id));
 
     match &transaction {
+        // Make a deposit
         model::Transaction::Deposit { amount, .. } => {
             client.deposit(*amount)?;
         }
+
+        // Withdrawl
         model::Transaction::Withdrawl {
             amount,
             transaction,
         } => {
-            client.withdraw(*transaction, *amount)?;
+            match client.withdraw(*transaction, *amount) {
+                // Skip insufficient funds
+                Err(result::Error::InsufficientFunds {
+                    requested,
+                    current_balance,
+                }) => (), // Should probably warn, but skipping this error
+
+                // Propagate everything else
+                Err(error) => return Err(error),
+                _ => (),
+            }
         }
         _ => (),
     }

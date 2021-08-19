@@ -30,7 +30,7 @@ pub enum Error {
         display = "Insufficient funds in account. requested {}, current balance {}",
         requested, current_balance
     )]
-    InsuffientFunds {
+    InsufficientFunds {
         requested: f32,
         current_balance: f32,
     },
