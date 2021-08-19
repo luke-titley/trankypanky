@@ -34,6 +34,8 @@ pub enum Error {
         requested: f32,
         current_balance: f32,
     },
+    #[fail(display = "Transaction Id Already In Use {}", transaction)]
+    TransactionIdAlreadyInUse { transaction: u64 },
 }
 
 //------------------------------------------------------------------------------

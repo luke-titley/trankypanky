@@ -5,6 +5,7 @@ use super::result::Result;
 
 use serde::{Deserialize, Serialize};
 
+use std::collections::hash_map::Entry::Vacant;
 use std::collections::HashMap;
 
 pub type ClientId = u16;
@@ -120,13 +121,31 @@ impl Client {
             });
         }
 
+        match self.withdrawls.entry(transaction) {
+            Vacant(entry) => {
+                entry.insert(amount);
+            }
+            _ => {
+                return Err(super::result::Error::TransactionIdAlreadyInUse {
+                    transaction,
+                });
+            }
+        }
+
         self.amount -= amount;
         self.total -= amount;
 
-        self.withdrawls.insert(transaction, amount);
+        Ok(())
+    }
+
+    /*
+    pub fn deposit(&mut self, amount: f32) -> Result<()> {
+        self.amount += amount;
+        self.total += amount;
 
         Ok(())
     }
+    */
 }
 
 pub type Clients = HashMap<u16, Client>;
