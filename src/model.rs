@@ -122,9 +122,11 @@ impl Client {
         }
 
         match self.withdrawls.entry(transaction) {
+            // Insert the new amount
             Vacant(entry) => {
                 entry.insert(amount);
             }
+            // If we've already used this transaction id then fail.
             _ => {
                 return Err(super::result::Error::TransactionIdAlreadyInUse {
                     transaction,
