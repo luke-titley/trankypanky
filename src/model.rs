@@ -106,9 +106,12 @@ impl Client {
         }
     }
 
+    pub fn synchronize(&mut self) {
+        self.total = self.held + self.amount;
+    }
+
     pub fn deposit(&mut self, amount: f32) -> Result<()> {
         self.amount += amount;
-        self.total += amount;
 
         Ok(())
     }
@@ -135,13 +138,13 @@ impl Client {
         }
 
         self.amount -= amount;
-        self.total -= amount;
 
         Ok(())
     }
 
     pub fn dispute(&mut self, transaction: u64) -> Result<()> {
         if let Some(withdrawl) = self.withdrawls.get(&transaction) {
+            self.held += withdrawl;
             Ok(())
         } else {
             Err(super::result::Error::InvalidTransactionId { transaction })

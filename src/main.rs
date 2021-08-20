@@ -62,6 +62,15 @@ fn process_transaction(
 }
 
 //------------------------------------------------------------------------------
+fn synchronize(clients: &mut model::Clients) -> Result<()> {
+    for (_, client) in clients {
+        client.synchronize();
+    }
+
+    Ok(())
+}
+
+//------------------------------------------------------------------------------
 fn write(clients: &model::Clients) -> Result<()> {
     let mut wtr = csv::Writer::from_writer(std::io::stdout());
 
@@ -83,6 +92,9 @@ fn main() -> std::result::Result<(), failure::Error> {
     reader::process_file(&filepath, |client, transaction| {
         process_transaction(&mut clients, client, transaction)
     })?;
+
+    // Synchronize clients
+    synchronize(&mut clients);
 
     // Dump the results
     write(&clients);
