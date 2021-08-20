@@ -140,6 +140,14 @@ impl Client {
         Ok(())
     }
 
+    pub fn dispute(&mut self, transaction: u64) -> Result<()> {
+        if let Some(withdrawl) = self.withdrawls.get(&transaction) {
+            Ok(())
+        } else {
+            Err(super::result::Error::InvalidTransactionId { transaction })
+        }
+    }
+
     /*
     pub fn deposit(&mut self, amount: f32) -> Result<()> {
         self.amount += amount;

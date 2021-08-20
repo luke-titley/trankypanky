@@ -36,6 +36,9 @@ pub enum Error {
     },
     #[fail(display = "Transaction Id Already In Use {}", transaction)]
     TransactionIdAlreadyInUse { transaction: u64 },
+
+    #[fail(display = "Invalid transaction id {}", transaction)]
+    InvalidTransactionId { transaction: u64 },
 }
 
 //------------------------------------------------------------------------------
