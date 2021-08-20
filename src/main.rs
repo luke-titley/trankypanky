@@ -45,10 +45,10 @@ fn process_transaction(
         } => {
             match client.withdraw(*transaction, *amount) {
                 // Skip insufficient funds
-                Err(result::Error::InsufficientFunds {
-                    requested,
-                    current_balance,
-                }) => (), // Should probably warn, but skipping this error
+                Err(result::Error::InsufficientFunds { .. }) => (), // Should probably warn, but skipping for now
+
+                // Skip invalid transaction
+                Err(result::Error::InvalidTransactionId { .. }) => (), // Should probably warn, but skipping for now
 
                 // Propagate everything else
                 Err(error) => return Err(error),

@@ -90,7 +90,9 @@ pub struct Client {
     locked: bool,
 
     #[serde(skip)]
-    withdrawls: HashMap<u64, Amount>,
+    transactions_withdrawls: HashMap<u64, Amount>,
+    #[serde(skip)]
+    transactions_held: HashMap<u64, Amount>,
 }
 
 //------------------------------------------------------------------------------
@@ -102,7 +104,8 @@ impl Client {
             held: 0_f32,
             total: 0_f32,
             locked: false,
-            withdrawls: HashMap::new(),
+            transactions_withdrawls: HashMap::new(),
+            transactions_held: HashMap::new(),
         }
     }
 
@@ -124,7 +127,7 @@ impl Client {
             });
         }
 
-        match self.withdrawls.entry(transaction) {
+        match self.transactions_withdrawls.entry(transaction) {
             // Insert the new amount
             Vacant(entry) => {
                 entry.insert(amount);
@@ -145,8 +148,26 @@ impl Client {
     pub fn dispute(&mut self, transaction: u64) -> Result<()> {
         // Remove the withdrawl entry to protect against multiple disputes
         // of the same transaction.
-        if let Some(withdrawl) = self.withdrawls.remove(&transaction) {
-            self.held += withdrawl;
+        if let Some(amount) = self.transactions_withdrawls.remove(&transaction)
+        {
+            assert!(self.transactions_held.get(&transaction).is_none());
+
+            self.held += amount;
+            self.transactions_held.insert(transaction, amount);
+        } else {
+            // Ignore invalid transaction id (as specified by spec)
+        }
+
+        Ok(())
+    }
+
+    pub fn chargeback(&mut self, transaction: u64) -> Result<()> {
+        if let Some(amount) = self.transactions_held.remove(&transaction) {
+            assert!(self.held >= amount);
+
+            self.held -= amount;
+            self.locked = true;
+
             Ok(())
         } else {
             Err(super::result::Error::InvalidTransactionId { transaction })
