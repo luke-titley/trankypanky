@@ -84,7 +84,7 @@ impl std::convert::TryFrom<super::reader::IOTransaction> for Transaction {
 #[derive(Debug, Serialize)]
 pub struct Client {
     client: u16,
-    amount: Amount,
+    available: Amount,
     held: Amount,
     total: Amount,
     locked: bool,
@@ -100,7 +100,7 @@ impl Client {
     pub fn new(id: u16) -> Self {
         Self {
             client: id,
-            amount: 0_f32,
+            available: 0_f32,
             held: 0_f32,
             total: 0_f32,
             locked: false,
@@ -110,20 +110,20 @@ impl Client {
     }
 
     pub fn synchronize(&mut self) {
-        self.total = self.held + self.amount;
+        self.total = self.held + self.available;
     }
 
     pub fn deposit(&mut self, amount: f32) -> Result<()> {
-        self.amount += amount;
+        self.available += amount;
 
         Ok(())
     }
 
     pub fn withdraw(&mut self, transaction: u64, amount: f32) -> Result<()> {
-        if amount > self.amount {
+        if amount > self.available {
             return Err(super::result::Error::InsufficientFunds {
                 requested: amount,
-                current_balance: self.amount,
+                current_balance: self.available,
             });
         }
 
@@ -140,7 +140,7 @@ impl Client {
             }
         }
 
-        self.amount -= amount;
+        self.available -= amount;
 
         Ok(())
     }
@@ -179,7 +179,7 @@ impl Client {
             assert!(self.held >= amount);
 
             self.held -= amount;
-            self.amount += amount;
+            self.available += amount;
 
             Ok(())
         } else {
