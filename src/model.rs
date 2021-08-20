@@ -174,6 +174,19 @@ impl Client {
         }
     }
 
+    pub fn resolve(&mut self, transaction: u64) -> Result<()> {
+        if let Some(amount) = self.transactions_held.remove(&transaction) {
+            assert!(self.held >= amount);
+
+            self.held -= amount;
+            self.amount += amount;
+
+            Ok(())
+        } else {
+            Err(super::result::Error::InvalidTransactionId { transaction })
+        }
+    }
+
     /*
     pub fn deposit(&mut self, amount: f32) -> Result<()> {
         self.amount += amount;
