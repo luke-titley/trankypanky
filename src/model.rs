@@ -143,7 +143,9 @@ impl Client {
     }
 
     pub fn dispute(&mut self, transaction: u64) -> Result<()> {
-        if let Some(withdrawl) = self.withdrawls.get(&transaction) {
+        // Remove the withdrawl entry to protect against multiple disputes
+        // of the same transaction.
+        if let Some(withdrawl) = self.withdrawls.remove(&transaction) {
             self.held += withdrawl;
             Ok(())
         } else {
