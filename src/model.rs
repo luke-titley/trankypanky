@@ -186,15 +186,6 @@ impl Client {
             Err(super::result::Error::InvalidTransactionId { transaction })
         }
     }
-
-    /*
-    pub fn deposit(&mut self, amount: f32) -> Result<()> {
-        self.amount += amount;
-        self.total += amount;
-
-        Ok(())
-    }
-    */
 }
 
 pub type Clients = HashMap<u16, Client>;
