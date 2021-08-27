@@ -61,7 +61,7 @@ fn process_transaction(
             match client.withdraw(*transaction, *amount) {
                 // Skip insufficient funds
                 // Should probably warn, but skipping for now.
-                Err(result::Error::InsufficientFunds { .. }) => (), 
+                Err(result::Error::InsufficientFunds { .. }) => (),
 
                 // Skip invalid transaction
                 // Should probably warn, but skipping for now.

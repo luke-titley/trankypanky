@@ -3,7 +3,7 @@
 //------------------------------------------------------------------------------
 use super::result::Result;
 
-use serde::{Serialize};
+use serde::Serialize;
 
 use std::collections::hash_map::Entry::Vacant;
 use std::collections::HashMap;
