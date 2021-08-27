@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 // Copywrite Luke Titley 2021
 //------------------------------------------------------------------------------
-use super::result::Result;
+use super::result::{Error, Result};
 
 use serde::Serialize;
 
@@ -11,6 +11,7 @@ use std::collections::HashMap;
 pub type ClientId = u16;
 pub type TransactionId = u64;
 pub type Amount = f32;
+pub type Clients = HashMap<u16, Client>;
 
 #[derive(Debug)]
 pub enum Transaction {
@@ -185,4 +186,56 @@ impl Client {
     }
 }
 
-pub type Clients = HashMap<u16, Client>;
+//------------------------------------------------------------------------------
+pub fn process_transaction(
+    clients: &mut Clients,
+    client_id: ClientId,
+    transaction: Transaction,
+) -> Result<()> {
+    let client = clients.entry(client_id).or_insert(Client::new(client_id));
+
+    match &transaction {
+        // Chargeback
+        Transaction::Chargeback { transaction } => {
+            client.chargeback(*transaction)?;
+        }
+
+        // Make a deposit
+        Transaction::Deposit { amount, .. } => {
+            client.deposit(*amount)?;
+        }
+
+        // Dispute
+        Transaction::Dispute { transaction } => {
+            client.dispute(*transaction)?;
+        }
+
+        // Resolve
+        Transaction::Resolve { transaction } => {
+            client.resolve(*transaction)?;
+        }
+
+        // Withdrawl
+        Transaction::Withdrawl {
+            amount,
+            transaction,
+        } => {
+            match client.withdraw(*transaction, *amount) {
+                // Skip insufficient funds
+                // Should probably warn, but skipping for now.
+                Err(Error::InsufficientFunds { .. }) => (),
+
+                // Skip invalid transaction
+                // Should probably warn, but skipping for now.
+                Err(Error::InvalidTransactionId { .. }) => (),
+
+                // Propagate everything else
+                Err(error) => return Err(error),
+                _ => (),
+            }
+        }
+        _ => (),
+    }
+
+    Ok(())
+}

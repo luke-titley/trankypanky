@@ -23,62 +23,6 @@ fn parse_arguments() -> Result<std::path::PathBuf> {
 }
 
 //------------------------------------------------------------------------------
-fn process_transaction(
-    clients: &mut model::Clients,
-    client_id: model::ClientId,
-    transaction: model::Transaction,
-) -> Result<()> {
-    let client = clients
-        .entry(client_id)
-        .or_insert(model::Client::new(client_id));
-
-    match &transaction {
-        // Chargeback
-        model::Transaction::Chargeback { transaction } => {
-            client.chargeback(*transaction)?;
-        }
-
-        // Make a deposit
-        model::Transaction::Deposit { amount, .. } => {
-            client.deposit(*amount)?;
-        }
-
-        // Dispute
-        model::Transaction::Dispute { transaction } => {
-            client.dispute(*transaction)?;
-        }
-
-        // Resolve
-        model::Transaction::Resolve { transaction } => {
-            client.resolve(*transaction)?;
-        }
-
-        // Withdrawl
-        model::Transaction::Withdrawl {
-            amount,
-            transaction,
-        } => {
-            match client.withdraw(*transaction, *amount) {
-                // Skip insufficient funds
-                // Should probably warn, but skipping for now.
-                Err(result::Error::InsufficientFunds { .. }) => (),
-
-                // Skip invalid transaction
-                // Should probably warn, but skipping for now.
-                Err(result::Error::InvalidTransactionId { .. }) => (),
-
-                // Propagate everything else
-                Err(error) => return Err(error),
-                _ => (),
-            }
-        }
-        _ => (),
-    }
-
-    Ok(())
-}
-
-//------------------------------------------------------------------------------
 fn synchronize(clients: &mut model::Clients) -> Result<()> {
     for (_, client) in clients {
         client.synchronize();
@@ -107,7 +51,7 @@ fn main() -> std::result::Result<(), failure::Error> {
     // Process th transactions
     let filepath = parse_arguments()?;
     reader::process_file(&filepath, |client, transaction| {
-        process_transaction(&mut clients, client, transaction)
+        model::process_transaction(&mut clients, client, transaction)
     })?;
 
     // Synchronize clients
