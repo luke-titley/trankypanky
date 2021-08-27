@@ -33,6 +33,11 @@ fn process_transaction(
         .or_insert(model::Client::new(client_id));
 
     match &transaction {
+        // Chargeback
+        model::Transaction::Chargeback { transaction } => {
+            client.chargeback(*transaction)?;
+        }
+
         // Make a deposit
         model::Transaction::Deposit { amount, .. } => {
             client.deposit(*amount)?;
