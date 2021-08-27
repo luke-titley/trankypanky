@@ -234,7 +234,6 @@ pub fn process_transaction(
                 _ => (),
             }
         }
-        _ => (),
     }
 
     Ok(())

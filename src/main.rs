@@ -55,10 +55,10 @@ fn main() -> std::result::Result<(), failure::Error> {
     })?;
 
     // Synchronize clients
-    synchronize(&mut clients);
+    synchronize(&mut clients)?;
 
     // Dump the results
-    write(&clients);
+    write(&clients)?;
 
     Ok(())
 }
