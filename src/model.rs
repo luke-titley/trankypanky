@@ -3,7 +3,7 @@
 //------------------------------------------------------------------------------
 use super::result::Result;
 
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 
 use std::collections::hash_map::Entry::Vacant;
 use std::collections::HashMap;
@@ -41,36 +41,33 @@ impl std::convert::TryFrom<super::reader::IOTransaction> for Transaction {
         match from {
             super::reader::IOTransaction {
                 type_: super::reader::IOTransactionType::Chargeback,
-                client,
                 tx: transaction,
                 ..
             } => Ok(Self::Chargeback { transaction }),
             super::reader::IOTransaction {
                 type_: super::reader::IOTransactionType::Deposit,
-                client,
                 tx: transaction,
                 amount: Some(amount),
+                ..
             } => Ok(Self::Deposit {
                 transaction,
                 amount,
             }),
             super::reader::IOTransaction {
                 type_: super::reader::IOTransactionType::Dispute,
-                client,
                 tx: transaction,
                 ..
             } => Ok(Self::Dispute { transaction }),
             super::reader::IOTransaction {
                 type_: super::reader::IOTransactionType::Resolve,
-                client,
                 tx: transaction,
                 ..
             } => Ok(Self::Resolve { transaction }),
             super::reader::IOTransaction {
                 type_: super::reader::IOTransactionType::Withdrawl,
-                client,
                 tx: transaction,
                 amount: Some(amount),
+                ..
             } => Ok(Self::Withdrawl {
                 transaction,
                 amount,
