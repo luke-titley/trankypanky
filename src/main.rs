@@ -43,6 +43,16 @@ fn process_transaction(
             client.deposit(*amount)?;
         }
 
+        // Dispute
+        model::Transaction::Dispute { transaction } => {
+            client.dispute(*transaction)?;
+        }
+
+        // Resolve
+        model::Transaction::Resolve { transaction } => {
+            client.resolve(*transaction)?;
+        }
+
         // Withdrawl
         model::Transaction::Withdrawl {
             amount,
