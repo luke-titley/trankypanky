@@ -1,6 +1,13 @@
 //------------------------------------------------------------------------------
 // Copywrite Luke Titley 2021
 //------------------------------------------------------------------------------
+//! Tranky Panky is a toy account transaction summary application.
+/// To build and run tranky panky you can do the following.
+///
+/// ```
+/// cargo run -- example/simple.csv
+/// ```
+///
 mod model;
 mod reader;
 mod result;
@@ -8,6 +15,7 @@ mod result;
 use result::Result;
 
 //------------------------------------------------------------------------------
+/// Handle the command line arguments.
 fn parse_arguments() -> Result<std::path::PathBuf> {
     let args: Vec<String> = std::env::args().collect();
     if args.len() < 2 {
@@ -23,6 +31,7 @@ fn parse_arguments() -> Result<std::path::PathBuf> {
 }
 
 //------------------------------------------------------------------------------
+/// Synchronise the internal state for all clients.
 fn synchronize(clients: &mut model::Clients) -> Result<()> {
     for (_, client) in clients {
         client.synchronize();
@@ -32,6 +41,7 @@ fn synchronize(clients: &mut model::Clients) -> Result<()> {
 }
 
 //------------------------------------------------------------------------------
+/// Display the result of the client account summary
 fn write(clients: &model::Clients) -> Result<()> {
     let mut wtr = csv::Writer::from_writer(std::io::stdout());
 
@@ -44,6 +54,7 @@ fn write(clients: &model::Clients) -> Result<()> {
 }
 
 //------------------------------------------------------------------------------
+/// Result handler. Resonsible for displaying all propagated errors.
 fn handle<F>(f: F)
 where
     F: FnOnce() -> std::result::Result<(), failure::Error>,
@@ -56,6 +67,7 @@ where
 }
 
 //------------------------------------------------------------------------------
+/// you know what this does.
 fn main() {
     // Panic with any errors and format them correctly to stderr
     handle(|| {
