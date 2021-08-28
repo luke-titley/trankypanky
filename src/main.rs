@@ -57,6 +57,7 @@ fn handle<F>(f : F)
 
 //------------------------------------------------------------------------------
 fn main() {
+    // Panic with any errors and format them correctly to stderr
     handle(|| {
         // Clients
         let mut clients = model::Clients::new();
