@@ -44,21 +44,35 @@ fn write(clients: &model::Clients) -> Result<()> {
 }
 
 //------------------------------------------------------------------------------
-fn main() -> std::result::Result<(), failure::Error> {
-    // Clients
-    let mut clients = model::Clients::new();
+fn handle<F>(f : F)
+    where
+        F : FnOnce() -> std::result::Result<(), failure::Error>
+{
+    let result = f();
+    match result {
+        Err(error) => panic!("{}", error),
+        Ok(()) => (),
+    }
+}
 
-    // Process th transactions
-    let filepath = parse_arguments()?;
-    reader::process_file(&filepath, |client, transaction| {
-        model::process_transaction(&mut clients, client, transaction)
-    })?;
+//------------------------------------------------------------------------------
+fn main() {
+    handle(|| {
+        // Clients
+        let mut clients = model::Clients::new();
 
-    // Synchronize clients
-    synchronize(&mut clients)?;
+        // Process th transactions
+        let filepath = parse_arguments()?;
+        reader::process_file(&filepath, |client, transaction| {
+            model::process_transaction(&mut clients, client, transaction)
+        })?;
 
-    // Dump the results
-    write(&clients)?;
+        // Synchronize clients
+        synchronize(&mut clients)?;
 
-    Ok(())
+        // Dump the results
+        write(&clients)?;
+
+        Ok(())
+    })
 }
