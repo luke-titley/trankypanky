@@ -44,9 +44,9 @@ fn write(clients: &model::Clients) -> Result<()> {
 }
 
 //------------------------------------------------------------------------------
-fn handle<F>(f : F)
-    where
-        F : FnOnce() -> std::result::Result<(), failure::Error>
+fn handle<F>(f: F)
+where
+    F: FnOnce() -> std::result::Result<(), failure::Error>,
 {
     let result = f();
     match result {

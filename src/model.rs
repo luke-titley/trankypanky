@@ -1,6 +1,9 @@
 //------------------------------------------------------------------------------
 // Copywrite Luke Titley 2021
 //------------------------------------------------------------------------------
+//! The model contains all the types pertinant to the core data model of the
+//! application.
+
 use super::result::{Error, Result};
 
 use serde::Serialize;
