@@ -2,12 +2,13 @@
 // Copywrite Luke Titley 2021
 //------------------------------------------------------------------------------
 //! Tranky Panky is a toy account transaction summary application.
-/// To build and run tranky panky you can do the following.
-///
-/// ```
-/// cargo run -- example/simple.csv
-/// ```
-///
+//! To build and run tranky panky you can do the following.
+//!
+//!
+//! ```
+//! cargo run -- example/simple.csv
+//! ```
+//!
 mod model;
 mod reader;
 mod result;
