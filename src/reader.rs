@@ -18,7 +18,7 @@ pub enum IOTransactionType {
     Deposit,
     Dispute,
     Resolve,
-    Withdrawl,
+    Withdrawal,
 }
 
 //------------------------------------------------------------------------------
@@ -33,7 +33,7 @@ pub struct IOTransaction {
     pub client: u16,
     /// The transaction id.
     pub tx: u64,
-    /// For deposit and withdrawl transactions, the amount affected.
+    /// For deposit and withdrawal transactions, the amount affected.
     pub amount: Option<f32>,
 }
 

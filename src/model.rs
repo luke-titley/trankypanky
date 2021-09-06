@@ -31,17 +31,17 @@ pub enum Transaction {
         transaction: TransactionId,
         amount: Amount,
     },
-    /// Contest a withdrawl transaction.
+    /// Contest a withdrawal transaction.
     Dispute {
         transaction: TransactionId,
     },
-    /// Side with the dispute, amount from the withdrawl transaction is
+    /// Side with the dispute, amount from the withdrawal transaction is
     /// refunded.
     Resolve {
         transaction: TransactionId,
     },
     /// Withdrawn money from the client account
-    Withdrawl {
+    Withdrawal {
         transaction: TransactionId,
         amount: Amount,
     },
@@ -85,13 +85,13 @@ impl std::convert::TryFrom<super::reader::IOTransaction> for Transaction {
                 tx: transaction,
                 ..
             } => Ok(Self::Resolve { transaction }),
-            // Withdrawl
+            // Withdrawal
             super::reader::IOTransaction {
-                type_: super::reader::IOTransactionType::Withdrawl,
+                type_: super::reader::IOTransactionType::Withdrawal,
                 tx: transaction,
                 amount: Some(amount),
                 ..
-            } if amount >= 0.0 => Ok(Self::Withdrawl {
+            } if amount >= 0.0 => Ok(Self::Withdrawal {
                 transaction,
                 amount,
             }),
@@ -116,7 +116,7 @@ pub struct Client {
     locked: bool,
 
     #[serde(skip)]
-    transactions_withdrawls: HashMap<u64, Amount>,
+    transactions_withdrawals: HashMap<u64, Amount>,
     #[serde(skip)]
     transactions_held: HashMap<u64, Amount>,
 }
@@ -134,7 +134,7 @@ impl Client {
             held: 0_f32,
             total: 0_f32,
             locked: false,
-            transactions_withdrawls: HashMap::new(),
+            transactions_withdrawals: HashMap::new(),
             transactions_held: HashMap::new(),
         }
     }
@@ -172,7 +172,7 @@ impl Client {
             });
         }
 
-        match self.transactions_withdrawls.entry(transaction) {
+        match self.transactions_withdrawals.entry(transaction) {
             // Insert the new amount
             Vacant(entry) => {
                 entry.insert(amount);
@@ -194,9 +194,9 @@ impl Client {
     ///
     /// \param transaction: The transaction identifier
     pub fn dispute(&mut self, transaction: u64) -> Result<()> {
-        // Remove the withdrawl entry to protect against multiple disputes
+        // Remove the withdrawal entry to protect against multiple disputes
         // of the same transaction.
-        if let Some(amount) = self.transactions_withdrawls.remove(&transaction)
+        if let Some(amount) = self.transactions_withdrawals.remove(&transaction)
         {
             assert!(self.transactions_held.get(&transaction).is_none());
 
@@ -209,7 +209,7 @@ impl Client {
         Ok(())
     }
 
-    /// Override the withdrawl dispute. Release the held funds and lock
+    /// Override the withdrawal dispute. Release the held funds and lock
     /// the client account.
     ///
     /// \param transaction: The transaction identifier
@@ -278,8 +278,8 @@ pub fn process_transaction(
             client.resolve(*transaction)?;
         }
 
-        // Withdrawl
-        Transaction::Withdrawl {
+        // Withdrawal
+        Transaction::Withdrawal {
             amount,
             transaction,
         } => {

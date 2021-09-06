@@ -36,7 +36,7 @@ pub enum Error {
         display = "Insufficient funds in account. requested {}, current balance {}",
         requested, current_balance
     )]
-    /// The funds requested for withdrawl are greater than the funds that are
+    /// The funds requested for withdrawal are greater than the funds that are
     /// available.
     InsufficientFunds {
         requested: f32,
@@ -45,7 +45,7 @@ pub enum Error {
     #[fail(display = "Transaction Id Already In Use {}", transaction)]
 
     /// A transaction id is being used, but its already been used before.
-    /// This is for withdrawl transactions.
+    /// This is for withdrawal transactions.
     TransactionIdAlreadyInUse { transaction: u64 },
 
     #[fail(display = "Invalid transaction id {}", transaction)]
